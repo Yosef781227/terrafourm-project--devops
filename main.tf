@@ -10,9 +10,8 @@ terraform {
 
 provider "azurerm" {
   features {}
-
-  # Token authentication (use environment variables from az login or service principal)
-  use_cli = true
+  # Service Principal authentication via environment variables:
+  # ARM_CLIENT_ID, ARM_CLIENT_SECRET, ARM_TENANT_ID, ARM_SUBSCRIPTION_ID
 }
 
 # Create Resource Group 
@@ -26,15 +25,4 @@ module "webapp" {
   source                = "./modules/webapp-container"
   resource_group_name   = azurerm_resource_group.rg.name
   location              = azurerm_resource_group.rg.location
-  app_service_plan_name = "asp-webapp-container"
-  webapp_name           = "webapp-container-holyyosef-webapp" # must be globally unique
-  docker_image          = "nginx"
-  docker_image_tag      = "latest"
-  sku_name              = "B1"
-  https_only            = true
-  always_on             = true
-  container_port        = 80
-  app_settings = {
-    WEBSITES_ENABLE_APP_SERVICE_STORAGE = "false"
-  }
 }

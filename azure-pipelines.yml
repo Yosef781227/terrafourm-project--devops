@@ -1,0 +1,43 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  terraformVersion: '1.6.0'
+  workingDirectory: '$(System.DefaultWorkingDirectory)'
+
+jobs:
+- job: TerraformDeploy
+  displayName: 'Terraform Deploy'
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+  steps:
+  - task: TerraformInstaller@0
+    displayName: 'Install Terraform'
+    inputs:
+      terraformVersion: $(terraformVersion)
+  
+  - task: TerraformTaskV4@4
+    displayName: 'Terraform Init'
+    inputs:
+      provider: 'azurerm'
+      command: 'init'
+      workingDirectory: $(workingDirectory)
+  
+  - task: TerraformTaskV4@4
+    displayName: 'Terraform Plan'
+    inputs:
+      provider: 'azurerm'
+      command: 'plan'
+      workingDirectory: $(workingDirectory)
+      environmentServiceNameAzureRM: 'holy-service'
+  
+  - task: TerraformTaskV4@4
+    displayName: 'Terraform Apply'
+    inputs:
+      provider: 'azurerm'
+      command: 'apply'
+      workingDirectory: $(workingDirectory)
+      environmentServiceNameAzureRM: 'holy-service'
+      commandOptions: '-auto-approve'
