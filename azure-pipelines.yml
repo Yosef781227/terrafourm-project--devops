@@ -24,7 +24,7 @@ jobs:
       provider: 'azurerm'
       command: 'init'
       workingDirectory: $(workingDirectory)
-      backendServiceArm: ''
+      backendType: 'none'
   
   - task: TerraformTaskV4@4
     displayName: 'Terraform Plan'
