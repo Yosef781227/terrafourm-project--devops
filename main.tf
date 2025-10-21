@@ -9,8 +9,12 @@ terraform {
 }
 
 provider "azurerm" {
-  features {}
-  resource_provider_registrations = "none"
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
+  skip_provider_registration = true
   # Service Principal authentication via environment variables:
   # ARM_CLIENT_ID, ARM_CLIENT_SECRET, ARM_TENANT_ID, ARM_SUBSCRIPTION_ID
 }
