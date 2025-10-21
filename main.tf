@@ -8,68 +8,17 @@ terraform {
   required_version = ">=1.3.0"
 }
 
-# Variables
-variable "app_service_plan_name" {
-  type        = string
-  description = "App Service Plan name"
-}
-
-variable "webapp_name" {
-  type        = string
-  description = "Unique Web App name"
-}
-
-variable "docker_image" {
-  type        = string
-  description = "Docker image name"
-}
-
-variable "docker_image_tag" {
-  type        = string
-  description = "Docker image tag"
-  default     = "latest"
-}
-
-variable "sku_name" {
-  type        = string
-  description = "App Service Plan SKU"
-  default     = "B1"
-}
-
-variable "https_only" {
-  type        = bool
-  description = "Force HTTPS only"
-  default     = true
-}
-
-variable "always_on" {
-  type        = bool
-  description = "Keep the app always on"
-  default     = true
-}
-
-variable "container_port" {
-  type        = number
-  description = "Container port"
-  default     = 80
-}
-
-variable "app_settings" {
-  type        = map(string)
-  description = "Application settings"
-  default     = {}
-}
-
 provider "azurerm" {
   features {}
+  resource_provider_registrations = "none"
   # Service Principal authentication via environment variables:
   # ARM_CLIENT_ID, ARM_CLIENT_SECRET, ARM_TENANT_ID, ARM_SUBSCRIPTION_ID
 }
 
 # Create Resource Group 
 resource "azurerm_resource_group" "rg" {
-  name     = "rg-webapp-container"
-  location = "East US"
+  name     = var.resource_group_name
+  location = var.location
 }
 
 # Call the webapp-container module
