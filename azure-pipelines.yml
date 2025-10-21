@@ -2,7 +2,9 @@ trigger:
 - main
 
 pool:
-  vmImage: 'ubuntu-latest'
+  name: 'Default'
+  demands:
+  - agent.name -equals holy-agent
 
 variables:
   terraformVersion: '1.6.0'
@@ -13,34 +15,31 @@ jobs:
   displayName: 'Terraform Deploy'
   condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
   steps:
-  - script: |
-      wget https://releases.hashicorp.com/terraform/$(terraformVersion)/terraform_$(terraformVersion)_linux_amd64.zip
-      unzip terraform_$(terraformVersion)_linux_amd64.zip
-      sudo mv terraform /usr/local/bin/
-      terraform version
+  - task: TerraformInstaller@0
     displayName: 'Install Terraform'
+    inputs:
+      terraformVersion: $(terraformVersion)
   
-  - script: |
-      terraform init
+  - task: TerraformTaskV4@4
     displayName: 'Terraform Init'
-    workingDirectory: $(workingDirectory)
+    inputs:
+      provider: 'azurerm'
+      command: 'init'
+      workingDirectory: $(workingDirectory)
   
-  - script: |
-      terraform plan
+  - task: TerraformTaskV4@4
     displayName: 'Terraform Plan'
-    workingDirectory: $(workingDirectory)
-    env:
-      ARM_CLIENT_ID: $(ARM_CLIENT_ID)
-      ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
-      ARM_TENANT_ID: $(ARM_TENANT_ID)
-      ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+    inputs:
+      provider: 'azurerm'
+      command: 'plan'
+      workingDirectory: $(workingDirectory)
+      environmentServiceNameAzureRM: 'holy-service'
   
-  - script: |
-      terraform apply -auto-approve
+  - task: TerraformTaskV4@4
     displayName: 'Terraform Apply'
-    workingDirectory: $(workingDirectory)
-    env:
-      ARM_CLIENT_ID: $(ARM_CLIENT_ID)
-      ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
-      ARM_TENANT_ID: $(ARM_TENANT_ID)
-      ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+    inputs:
+      provider: 'azurerm'
+      command: 'apply'
+      workingDirectory: $(workingDirectory)
+      environmentServiceNameAzureRM: 'holy-service'
+      commandOptions: '-auto-approve'
